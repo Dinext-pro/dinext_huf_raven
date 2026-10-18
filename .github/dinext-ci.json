@@ -1,0 +1,7 @@
+{
+  "app": "dinext_huf_raven",
+  "package_dir": "dinext_huf_raven",
+  "mode": "repository",
+  "gitflow": true,
+  "frontend_tests": false
+}
