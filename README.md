@@ -1,36 +1,38 @@
+[Русский](README.ru.md)
+
 # Dinext Huf Raven
 
-Интеграция чат-ассистента Dinext: [Raven](https://github.com/frappe/raven) — интерфейс общения с пользователем, [Huf](https://github.com/Dinext-pro/huf) — инфраструктура ИИ-агентов и выполнения поручений. Этот репозиторий предназначен для **всех доработок Dinext, связывающих Raven с Huf**. Форк Huf сохраняет связь с [исходным проектом](https://github.com/tridz-dev/huf) и служит для необходимых изменений ядра Huf.
+Dinext chat assistant integration: [Raven](https://github.com/frappe/raven) provides the user conversation interface, while [Huf](https://github.com/Dinext-pro/huf) provides the infrastructure for AI agents and task execution. This repository owns **all Dinext enhancements connecting Raven and Huf**. The Huf fork retains its connection to the [original project](https://github.com/tridz-dev/huf) and hosts necessary changes to the Huf core.
 
-## Задача
+## Task
 
-Сотрудник обращается к ассистенту в существующем личном чате или канале Raven. Ассистент принимает поручение, при необходимости уточняет его, читает доступные сотруднику данные Dinext и выполняет разрешённые действия через Huf. Ход работы, запрос подтверждения и результат остаются в исходном треде Raven. Данные, которые нельзя показывать всем участникам канала, возвращаются сотруднику лично.
+An employee contacts the assistant in an existing Raven direct conversation or channel. The assistant accepts the task, asks for clarification when needed, reads the Dinext data available to that employee, and performs authorized actions through Huf. Progress, confirmation requests, and results remain in the original Raven thread. Information that cannot be shown to every channel participant is returned to the employee privately.
 
-Разработка включает:
+Development includes:
 
-1. Входящий адаптер Raven для личных сообщений, явных упоминаний в каналах, ответов в тредах и вложений; защиту от повторной обработки сообщений и ответов самого бота.
-2. Надёжное сопоставление автора сообщения Raven с пользователем Frappe. Инструменты и запросы выполняются с его правами, а доступ к каналу и аудитория ответа проверяются отдельно.
-3. Подключение агента Huf, его моделей, инструментов, памяти, очереди выполнения, журналов, ограничений и механизма подтверждения действий к диалогу Raven.
-4. Инструменты Dinext для документов, поиска, метаданных, отчётов, согласований, workflow, файлов, аналитики и визуализации. Ориентир полноты — пользовательские возможности ранее применявшегося MCP FAC, с учётом прав конкретного сотрудника.
-5. Проверки возобновления после сбоя, повторной доставки события, устаревшего подтверждения, отзыва доступа и безопасной публикации результатов в групповой чат.
+1. An inbound Raven adapter for direct messages, explicit channel mentions, thread replies, and attachments, with protection against duplicate message processing and replies to the bot itself.
+2. Reliable mapping of the Raven message author to a Frappe user. Tools and queries run with that user's permissions, while channel access and the response audience are checked separately.
+3. Connecting the Huf agent, its models, tools, memory, execution queue, logs, limits, and action confirmation mechanism to the Raven conversation.
+4. Dinext tools for documents, search, metadata, reports, approvals, workflows, files, analytics, and visualization. The coverage baseline is the user functionality of the previously used MCP FAC, subject to the individual employee's permissions.
+5. Tests for recovery after a failure, repeated event delivery, stale confirmations, revoked access, and safe publication of results in a group conversation.
 
-## Границы репозиториев
+## Repository boundaries
 
-| Репозиторий | Назначение |
+| Repository | Responsibility |
 | --- | --- |
-| [`Dinext-pro/dinext_huf_raven`](https://github.com/Dinext-pro/dinext_huf_raven) | Адаптер Raven, инструменты и правила интеграции Dinext, тесты и документация задачи |
-| [`Dinext-pro/huf`](https://github.com/Dinext-pro/huf) | Настоящий форк Huf для минимальных изменений ядра, которые нельзя вынести в интеграцию |
-| [`frappe/raven`](https://github.com/frappe/raven) | Исходный чат и его пользовательский интерфейс |
+| [`Dinext-pro/dinext_huf_raven`](https://github.com/Dinext-pro/dinext_huf_raven) | The Raven adapter, Dinext integration tools and rules, tests, and task documentation |
+| [`Dinext-pro/huf`](https://github.com/Dinext-pro/huf) | A native Huf fork for minimal core changes that cannot be implemented in the integration |
+| [`frappe/raven`](https://github.com/frappe/raven) | The original chat application and its user interface |
 
-Планирование изменений ведётся в центральном OpenSpec Store `dinext-docs`; этот репозиторий содержит только указатель `openspec/config.yaml` и стандартные инструкции для агента. Рабочая линия Dinext — `develop`, стабильная — `main`. Приложение пока не реализовано и не установлено: текущий этап создаёт публичное место разработки и фиксирует задачу.
+Changes are planned in the central OpenSpec store; this repository contains only the `openspec/config.yaml` pointer and standard agent instructions. The Dinext working line is `develop`, and the stable line is `main`. The application has not yet been implemented or installed: the current stage creates a public development repository and records the task.
 
-## Приёмка первого рабочего контура
+## Acceptance of the first working integration
 
-- Сообщение в личном чате и `@`-упоминание в канале запускают ровно одно поручение Huf и получают ответ в соответствующем треде Raven.
-- Два пользователя с разными правами видят только разрешённые им данные; конфиденциальный результат не попадает в общий канал.
-- Предложенное изменение документа можно подтвердить или отклонить в Raven; после подтверждения виден проверенный результат операции.
-- Поручение корректно переживает повторную доставку сообщения и перезапуск исполнителя, не дублируя запись в ERP.
-- Матрица возможностей подтверждает покрытие функций FAC, необходимых пользователям Dinext, нативными инструментами Huf и расширениями этого репозитория.
+- A direct message and an `@` mention in a channel each start exactly one Huf task and receive a response in the corresponding Raven thread.
+- Two users with different permissions see only the data they are allowed to access; confidential results do not appear in a group channel.
+- A proposed document change can be confirmed or rejected in Raven; after confirmation, the verified operation result is visible.
+- A task survives repeated message delivery and executor restarts without duplicating ERP writes.
+- A capability matrix demonstrates coverage of the FAC functionality required by users through native Huf tools and extensions in this repository.
 
 ## English summary
 
