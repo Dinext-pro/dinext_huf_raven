@@ -1,5 +1,25 @@
 [English](README.md)
 
+<!-- dinext-presentation:start -->
+<p align="center">
+  <a href="https://dinext.ru"><img src="docs/assets/readme/dinext-logo.png" alt="Dinext" width="128"></a>
+</p>
+<h1 align="center">Dinext Huf Raven</h1>
+
+<hr>
+
+<p align="center">Планируемая интеграция чата Dinext с ИИ-агентами. Сейчас репозиторий содержит постановку и границы интеграции, а не готовое приложение.</p>
+
+<p align="center">
+  <img src="docs/assets/readme/overview.png" alt="Существующий чат Dinext с вымышленными учебными участниками. Описанная здесь интеграция с ИИ пока планируется." width="960">
+</p>
+<p align="center"><sub>Существующий чат Dinext с вымышленными учебными участниками. Описанная здесь интеграция с ИИ пока планируется.</sub></p>
+
+<p align="center">
+  <a href="https://dinext.ru">Сайт</a> · <a href="https://docs.dinext.ru">Документация</a>
+</p>
+<!-- dinext-presentation:end -->
+
 # Dinext Huf Raven
 
 Интеграция чат-ассистента Dinext: [Raven](https://github.com/frappe/raven) — интерфейс общения с пользователем, [Huf](https://github.com/Dinext-pro/huf) — инфраструктура ИИ-агентов и выполнения поручений. Этот репозиторий предназначен для **всех доработок Dinext, связывающих Raven с Huf**. Форк Huf сохраняет связь с [исходным проектом](https://github.com/tridz-dev/huf) и служит для необходимых изменений ядра Huf.

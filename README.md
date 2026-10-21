@@ -1,5 +1,25 @@
 [Русский](README.ru.md)
 
+<!-- dinext-presentation:start -->
+<p align="center">
+  <a href="https://dinext.ru"><img src="docs/assets/readme/dinext-logo.png" alt="Dinext" width="128"></a>
+</p>
+<h1 align="center">Dinext Huf Raven</h1>
+
+<hr>
+
+<p align="center">Planned integration of Dinext chat and AI agents. This repository currently contains the integration task and boundaries, not a completed application.</p>
+
+<p align="center">
+  <img src="docs/assets/readme/overview.png" alt="The existing Dinext chat interface with fictional demo participants. The AI integration described here is still planned." width="960">
+</p>
+<p align="center"><sub>The existing Dinext chat interface with fictional demo participants. The AI integration described here is still planned.</sub></p>
+
+<p align="center">
+  <a href="https://dinext.ru">Website</a> · <a href="https://docs.dinext.ru">Documentation</a>
+</p>
+<!-- dinext-presentation:end -->
+
 # Dinext Huf Raven
 
 Dinext chat assistant integration: [Raven](https://github.com/frappe/raven) provides the user conversation interface, while [Huf](https://github.com/Dinext-pro/huf) provides the infrastructure for AI agents and task execution. This repository owns **all Dinext enhancements connecting Raven and Huf**. The Huf fork retains its connection to the [original project](https://github.com/tridz-dev/huf) and hosts necessary changes to the Huf core.
