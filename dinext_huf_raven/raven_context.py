@@ -22,7 +22,7 @@ def is_human_message(message, user):
     return bool(
         user and user not in {"Guest", "Administrator"} and message.owner == user
         and message.message_type in {"Text", *FILE_TYPES}
-        and not message.is_bot_message and not message.bot
+        and not message.is_bot_message and not message.bot and not message.notification
     )
 
 
@@ -48,7 +48,10 @@ def local_file_url(url):
     """Allow local Frappe attachments, including URL-encoded file names."""
     if not isinstance(url, str):
         return False
-    parsed = urlsplit(url)
+    try:
+        parsed = urlsplit(url)
+    except ValueError:
+        return False
     path = unquote(parsed.path)
     return (
         not parsed.scheme and not parsed.netloc and not parsed.query and not parsed.fragment
@@ -115,6 +118,8 @@ def route_message(message, settings):
     if not is_human_message(message, user) or not settings.enabled or not settings.agent or not settings.raven_bot:
         denied()
     channel = frappe.get_doc("Raven Channel", message.channel_id)
+    if not (channel.is_direct_message or channel.is_thread or message.mentions):
+        denied()
     bot = frappe.get_doc("Raven Bot", settings.raven_bot)
     if bot.is_ai_bot or not bot.raven_user:
         denied()

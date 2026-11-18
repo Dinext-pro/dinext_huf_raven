@@ -11,8 +11,8 @@ MAX_COLUMNS = 24
 MAX_OUTPUT = 100
 IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z_0-9]{0,63}\Z")
 SQL_FUNCTIONS = frozenset("""
-    abs avg ceil coalesce count date datetime floor group_concat ifnull
-    instr length lower ltrim max min nullif replace round rtrim strftime
+    abs avg ceil coalesce count date datetime floor glob group_concat ifnull
+    instr julianday length like lower ltrim max min nullif replace round rtrim strftime
     substr sum total trim upper
 """.split())
 

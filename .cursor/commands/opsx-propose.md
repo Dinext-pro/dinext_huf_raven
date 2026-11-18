@@ -16,7 +16,7 @@ I'll create a change with the artifacts your schema defines. With the default sp
 - design.md (how)
 - tasks.md (implementation steps)
 
-When ready to implement, run /opsx-apply
+Once the four Dinext artifacts pass strict validation, follow the central opsx-apply workflow in the terminal. Cursor also offers the /opsx-apply shortcut.
 
 ---
 
@@ -79,11 +79,9 @@ When ready to implement, run /opsx-apply
       - After creating each artifact, re-run `openspec status --change "<name>" --json`
       - The required set is `applyRequires` plus every artifact reachable from those by following the `requires` edges in `status --json` - walk them transitively (spec-driven closes over proposal, specs, design, tasks). Leave artifacts outside that set alone
       - `status` is file-existence only, so an `applyRequires` artifact reading `done` does NOT mean its dependencies exist - writing `tasks.md` early marks `tasks` done while `specs` was never written. Use each artifact's `requires` edges, not its `status`, to build the required set: a `done` artifact still lists what it depends on
-      - An artifact already reading `status: "skipped"` is satisfied: the change declares `skip_specs` in `.openspec.yaml`, so its files must NOT exist. Never try to create one
-      - Create every artifact in the required set that is missing, then re-check - creating one can unblock others
-      - Skip one only when `status` already reports it `skipped`, or when its own `instruction` says it is conditional: run `openspec instructions <artifact-id> --change "<name>" --json` and skip only if its `instruction` field marks it optional (e.g. "create only if..."). Spec-driven's `design.md` qualifies; `specs` qualifies only via the `skipped` status above, never by your own judgment. Tell the user, and do not reconsider it
-      - Dependencies are enablers, not gates: if a required artifact is still `blocked` only because you skipped a conditional dependency, write it anyway
-      - Stop when every artifact in the required set is `done`, `skipped`, or was deliberately skipped
+      - Dinext requires proposal, design, delta specs and tasks, including for hotfixes. If a required artifact is missing, blocked or marked skipped, resolve that condition in the selected change and re-run status before apply.
+      - Continue until all four report `done`. Read the artifacts and confirm they describe the same change.
+
 
    c. **If an artifact requires user input** (unclear context):
       - Ask the user to clarify
@@ -91,16 +89,17 @@ When ready to implement, run /opsx-apply
 
 5. **Show final status**
    ```bash
-   openspec status --change "<name>"
+   openspec status --change "<name>" --json
+   openspec validate "<name>" --type change --strict
    ```
 
 **Output**
 
 After completing all artifacts, summarize:
 - Change name and location
-- List of artifacts created with brief descriptions, plus any conditional artifact you skipped and why
+- The four completed artifacts and the strict validation result
 - What's ready: "All artifacts needed for implementation are ready."
-- Prompt: "Run `/opsx-apply` to start implementing."
+- To start implementation, run `openspec instructions apply --change "<name>" --json` and follow the central opsx-apply workflow.
 
 **Artifact Creation Guidelines**
 

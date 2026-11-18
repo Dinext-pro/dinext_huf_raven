@@ -1,4 +1,5 @@
 import unittest
+import json
 from contextlib import nullcontext
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
@@ -15,7 +16,7 @@ class TestRavenBridge(unittest.TestCase):
         self.assertFalse(raven_context.is_human_message(message, "other@example.test"))
         for identity in ("Guest", "Administrator"):
             self.assertFalse(raven_context.is_human_message(frappe._dict(message, owner=identity), identity))
-        for change in ({"bot": "Assistant"}, {"is_bot_message": 1}, {"message_type": "System"}):
+        for change in ({"bot": "Assistant"}, {"is_bot_message": 1}, {"message_type": "System"}, {"notification": "notice"}):
             self.assertFalse(raven_context.is_human_message(frappe._dict(message, **change), message.owner))
 
     def test_dm_needs_exact_recipient_and_current_members(self):
@@ -128,3 +129,52 @@ class TestRavenBridge(unittest.TestCase):
         self.assertTrue(raven_context.local_file_url("/private/files/my%20report.pdf"))
         for url in ("https://other.test/private/files/a", "//other.test/files/a", "/files/%2e%2e/secrets", "/api/method/x"):
             self.assertFalse(raven_context.local_file_url(url))
+
+    def test_worker_user_and_original_session_are_restored_after_error(self):
+        original = frappe._dict(user="scheduler", sid="original", data={"saved": 1})
+        local = SimpleNamespace(session=original, cache={}, form_dict={}, jenv_restricted=None, jenv_unrestricted=None,
+                                role_permissions={}, new_doc_templates={}, user_perms=None, lang="ru",
+                                flags=frappe._dict())
+        def switch(user):
+            local.session.update(user=user, sid=user, data={})
+            local.role_permissions = {"acting_user": user}
+        db = Mock()
+        db.get_value.return_value = "en"
+        with patch.object(bridge.frappe, "local", local), patch.object(bridge.frappe, "db", db), \
+             patch.object(bridge.frappe, "set_user", side_effect=switch):
+            with self.assertRaises(RuntimeError):
+                with bridge.employee_context("employee"):
+                    self.assertEqual(local.session.user, "employee")
+                    self.assertEqual(local.lang, "en")
+                    raise RuntimeError("interrupted")
+        self.assertIs(local.session, original)
+        self.assertEqual(original.sid, "original")
+        self.assertEqual(local.role_permissions, {})
+        self.assertEqual(local.lang, "ru")
+
+    def test_observed_attachments_share_one_event_with_the_caption(self):
+        owner = "employee"
+        flags = frappe._dict()
+        event = Mock()
+        event.name = "event"
+        db = Mock()
+        db.get_value.return_value = None
+        route = SimpleNamespace(root_channel="source", dialog_id="dialog", bot=frappe._dict(name="bot"),
+                                agent=frappe._dict(name="agent"))
+        common = dict(owner=owner, channel_id="channel", message_batch_id=None)
+        capture = Mock(return_value=event)
+        with patch.object(bridge.frappe, "flags", flags), \
+             patch.object(bridge.frappe, "session", frappe._dict(user=owner)), \
+             patch.object(bridge.frappe, "db", db), \
+             patch.object(bridge.frappe, "get_single", return_value=frappe._dict(enabled=1)), \
+             patch.object(bridge.frappe, "get_doc", capture), patch.object(bridge, "route_message", return_value=route), \
+             patch.object(bridge, "enqueue_processing") as enqueue:
+            for name in ("file-1", "file-2"):
+                bridge.on_message(frappe._dict(common, name=name, message_type="File",
+                                               flags=frappe._dict(skip_channel_summary=1)))
+            enqueue.assert_not_called()
+            bridge.on_message(frappe._dict(common, name="caption", message_type="Text", flags=frappe._dict()))
+        saved = capture.call_args.args[0]
+        self.assertEqual(saved["source_message"], "caption")
+        self.assertEqual(json.loads(saved["source_parts"]), ["file-1", "file-2"])
+        enqueue.assert_called_once_with(event.name)

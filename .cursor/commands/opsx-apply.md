@@ -34,6 +34,8 @@ Implement tasks from an OpenSpec change.
    - `planningHome`, `changeRoot`, and `actionContext`: planning scope and edit constraints
    - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
 
+   In Dinext, verify all four planning artifacts (proposal, design, delta specs and tasks) report `done`. Run `openspec validate "<name>" --type change --strict` and resolve any failure before editing the implementation. This also applies to hotfixes.
+
 3. **Get apply instructions**
 
    ```bash
@@ -179,5 +181,5 @@ What would you like to do?
 
 This skill supports the "actions on a change" model:
 
-- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
+- Resume a partially implemented change after checking the current plan and strict validation again.
 - **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly

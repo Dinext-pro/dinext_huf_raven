@@ -1,0 +1,27 @@
+Access to this assistant request has changed.,Доступ к этому запросу изменился.
+Attached files (use dinext_extract_file for document text),Приложенные файлы (для чтения документа используйте dinext_extract_file)
+Request completed.,Запрос выполнен.
+The assistant could not complete this request.,Ассистенту не удалось выполнить запрос.
+The request needs review before it can be repeated.,Перед повтором нужно проверить результат запроса.
+I replied in your direct chat.,Ответ отправлен вам в личный чат.
+You do not have access to this assistant operation.,У вас нет прав на эту операцию.
+"Check the requested operation, fields and values.","Проверьте операцию, поля и значения."
+Use an available workflow action for this document.,Выберите доступное действие workflow для этого документа.
+Proposed change {0},Предложение {0}
+Update named rows and append new rows,Обновить указанные строки и добавить новые
+Replace all rows,Заменить все строки
+Document version {0},Версия документа {0}
+Valid until {0},Действует до {0}
+Reply with “confirm {0}” or “reject {0}” in this bot DM.,Отправьте «подтвердить {0}» или «отклонить {0}» в этот личный чат с ботом.
+The change was applied.,Изменение вступило в силу.
+Frappe queued the approved workflow transition for {0}.,Frappe поставил подтверждённый переход workflow для {0} в очередь.
+The change was applied to {0} {1}.,Изменение применено к {0} {1}.
+You declined this proposal.,Вы отклонили это предложение.
+This proposal has expired.,Срок действия предложения истёк.
+The document has changed. Ask for a new proposal.,Документ изменился. Запросите новое предложение.
+Frappe declined this change. Ask for a new proposal after checking the document and permissions.,Frappe отклонил изменение. Проверьте документ и права и запросите новое предложение.
+The decision was recorded. Its outcome is being verified.,Решение записано. Результат проверяется.
+The outcome requires verification by an administrator.,Результат должен проверить администратор.
+This proposal is pending.,Предложение ждёт решения.
+Supply the required report filters: {0}.,Заполните обязательные фильтры отчёта {0}.
+"This file format, size or content could not be processed.","Не удалось обработать файл из-за его формата, размера или содержимого."

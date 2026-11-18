@@ -10,7 +10,7 @@
 2. Прочитать контракт доступа: `../dinext-docs/agents/ide/runtime-access.md`.
 3. Прочитать реестр: `../dinext-docs/agents/registry/index.yaml` и открыть по задаче релевантные `content_path`.
 4. Прочитать каноническое руководство-хаб: `../dinext-docs/agents/ide/agents/dinext-frappe-developer-guide.md`.
-5. **Mandatory OpenSpec (до любых правок):** `../dinext-docs/agents/ide/rules/openspec-mandatory-workflow.md` и `../dinext-docs/agents/ide/skills/openspec-development-workflow/SKILL.md`. Проверить Store (`openspec doctor` / `openspec context`); lifecycle вести через slash-команды `/opsx-propose`, `/opsx-update`, `/opsx-apply`, `/opsx-sync`, `/opsx-archive` (локальные копии в `.cursor/commands/`, source — `dinext-docs`). Без готовых proposal/design/specs/tasks реализация, hotfix и commit запрещены. Исключений нет. Store: `../dinext-docs/process/development-management/openspec-store.md`.
+5. Перед любой правкой, включая hotfix, прочитать `../dinext-docs/agents/ide/rules/openspec-mandatory-workflow.md` и `../dinext-docs/agents/ide/skills/openspec-development-workflow/SKILL.md`. Из корня приложения выполнить `openspec doctor` и `openspec context`. В Cursor и Codex запускать один и тот же OpenSpec CLI по центральным сценариям opsx. Приступать к реализации после готовности proposal, design, delta-specs и tasks в Store `dinext-docs` и успешной строгой проверки change. Подключение Store описано в `../dinext-docs/process/development-management/openspec-store.md`.
 6. По таблице навигации в hub открыть только релевантные topic assets: `../dinext-docs/agents/ide/guides/frappe/`, `../dinext-docs/agents/ide/skills/`; optional reference `../dinext-docs/agents/ide/reference/frappe/` — только при явной необходимости.
 7. При необходимости — другие central rules и workflow предложений shared-артефактов: `../dinext-docs/agents/ide/rules/`, `../dinext-docs/agents/ide/proposals/README.md`.
 
@@ -18,7 +18,7 @@
 
 ## Приоритет
 
-**Central Dinext layer** (реестр + runtime-access + developer guide + mandatory OpenSpec + опубликованные central skills/rules) имеет **операционный приоритет** над встроенными generic Cursor/Compound skills и глобальными workflow.
+Central Dinext layer (реестр, runtime-access, developer guide, mandatory OpenSpec и опубликованные central skills/rules) имеет приоритет над общими навыками клиента и глобальными workflow.
 
 Локальные `.cursor/skills/` и `.cursor/rules/` — только **дополнение** к central слою, не замена.
 
@@ -43,7 +43,7 @@
 - app-specific skills в `.cursor/skills/`, если они относятся только к этому приложению;
 - app-specific rules в `.cursor/rules/`, если они относятся только к этому приложению;
 - config-only OpenSpec pointer: `openspec/config.yaml` с единственной строкой `store: dinext-docs` (без локальных `openspec/specs` и `openspec/changes`);
-- синхронизированные копии slash-команд `.cursor/commands/opsx-*.md` из `dinext-docs` (не править локально; sync: `python3 ../dinext-docs/scripts/sync_opsx_commands.py --apply`);
+- по желанию команды — синхронизированные ярлыки Cursor `.cursor/commands/opsx-*.md`. Их канонические сценарии доступны обоим клиентам непосредственно в `dinext-docs/.cursor/commands/`;
 - опционально: скопировать в `.cursor/rules/` содержимое `../dinext-docs/agents/ide/navigation/consumer-always-apply-rule.mdc.example` (переименовать в `.mdc`), чтобы IDE поднимала central-first порядок автоматически.
 
 Если нужный shared-артефакт отсутствует локально, не создавай его в этом репозитории. Добавляй или обновляй его в `dinext-docs`.

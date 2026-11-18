@@ -1,0 +1,86 @@
+{
+ "actions": [],
+ "creation": "2026-11-19 01:33:54.465718",
+ "description": "Local bot routing and the cloud credential references for the Raven assistant.",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "raven_bot",
+  "agent",
+  "provider_details",
+  "yandex_folder_id",
+  "yandex_account_id",
+  "yandex_key_id"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "raven_bot",
+   "fieldtype": "Link",
+   "label": "Raven Bot",
+   "options": "Raven Bot"
+  },
+  {
+   "fieldname": "agent",
+   "fieldtype": "Link",
+   "label": "Agent",
+   "options": "Agent"
+  },
+  {
+   "fieldname": "provider_details",
+   "fieldtype": "Section Break",
+   "label": "Provider Details"
+  },
+  {
+   "fieldname": "yandex_folder_id",
+   "fieldtype": "Data",
+   "label": "Yandex Folder Id",
+   "read_only": 1
+  },
+  {
+   "fieldname": "yandex_account_id",
+   "fieldtype": "Data",
+   "label": "Yandex Account Id",
+   "read_only": 1
+  },
+  {
+   "fieldname": "yandex_key_id",
+   "fieldtype": "Data",
+   "label": "Yandex Key Id",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-11-19 01:33:54.465718",
+ "modified_by": "Administrator",
+ "module": "Dinext Huf Raven",
+ "name": "Dinext AI Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

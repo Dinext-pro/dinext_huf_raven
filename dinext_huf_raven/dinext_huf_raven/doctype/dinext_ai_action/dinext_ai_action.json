@@ -1,0 +1,132 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-11-19 01:34:24.159253",
+ "description": "Private audit record of a proposed ERP write and its Raven decision.",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "requester_user",
+  "source_event",
+  "agent_run",
+  "channel_id",
+  "thread_id",
+  "raven_bot",
+  "payload_json",
+  "payload_hash",
+  "target_version",
+  "expires_at",
+  "status",
+  "result_json",
+  "decision_event"
+ ],
+ "fields": [
+  {
+   "fieldname": "requester_user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Requester User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_event",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Source Event",
+   "reqd": 1
+  },
+  {
+   "fieldname": "agent_run",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Agent Run",
+   "reqd": 1
+  },
+  {
+   "fieldname": "channel_id",
+   "fieldtype": "Data",
+   "label": "Channel Id"
+  },
+  {
+   "fieldname": "thread_id",
+   "fieldtype": "Data",
+   "label": "Thread Id"
+  },
+  {
+   "fieldname": "raven_bot",
+   "fieldtype": "Data",
+   "label": "Raven Bot"
+  },
+  {
+   "fieldname": "payload_json",
+   "fieldtype": "Long Text",
+   "label": "Payload Json"
+  },
+  {
+   "fieldname": "payload_hash",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Payload Hash",
+   "reqd": 1
+  },
+  {
+   "fieldname": "target_version",
+   "fieldtype": "Data",
+   "label": "Target Version"
+  },
+  {
+   "fieldname": "expires_at",
+   "fieldtype": "Datetime",
+   "label": "Expires At",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nApplying\nApplied\nRejected\nExpired\nStale\nFailed\nUncertain",
+   "reqd": 1
+  },
+  {
+   "fieldname": "result_json",
+   "fieldtype": "Long Text",
+   "label": "Result Json"
+  },
+  {
+   "fieldname": "decision_event",
+   "fieldtype": "Data",
+   "label": "Decision Event"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-19 01:34:24.159253",
+ "modified_by": "Administrator",
+ "module": "Dinext Huf Raven",
+ "name": "Dinext AI Action",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

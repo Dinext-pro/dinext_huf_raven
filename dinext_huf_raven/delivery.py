@@ -76,7 +76,10 @@ def publish(event, route, files):
 
 def deliver_event(event_name):
     """RQ entry point. A failed send rolls back messages and leaves the stored result for retry."""
-    event = frappe.get_doc(EVENT, event_name, for_update=True)
+    try:
+        event = frappe.get_doc(EVENT, event_name, for_update=True)
+    except frappe.DoesNotExistError:
+        return
     statuses = {"Ready", "Failed", "Uncertain"}
     if event.status not in statuses or event.reply_message:
         return

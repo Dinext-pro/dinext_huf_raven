@@ -55,7 +55,7 @@ def on_message(doc, method=None):
     """Register the final message of a human send, in the Raven insert transaction."""
     if not is_human_message(doc, frappe.session.user):
         return
-    if frappe.flags.in_install or frappe.flags.in_migrate or frappe.flags.in_patch:
+    if frappe.flags.in_install or frappe.flags.in_migrate or frappe.flags.in_patch or frappe.flags.in_import:
         return
     settings = frappe.get_single("Dinext AI Settings")
     if not settings.enabled:
@@ -320,6 +320,10 @@ def _execute(event):
         _update(event, huf_conversation=conversation.name)
         # Huf itself commits during a run. Persist its precise recovery key before it can start.
         frappe.db.commit()
+        # Preparing a conversation can replay earlier reports. Check the current
+        # source and input files in a fresh transaction before the model sees them.
+        route = authorize_event(frappe.get_doc(EVENT, event.name))
+        setup.check_agent(event.agent)
         try:
             run_agent_sync(
                 agent_name=event.agent, prompt=_prompt(route), channel_id=PRIVATE_CHANNEL,
@@ -345,7 +349,10 @@ def _earlier_pending(event):
 
 def process_event(event_name):
     """RQ entry point. Only the event key crosses the queue boundary."""
-    event = frappe.get_doc(EVENT, event_name)
+    try:
+        event = frappe.get_doc(EVENT, event_name)
+    except frappe.DoesNotExistError:
+        return
     if event.status == "Ready":
         enqueue_delivery(event.name)
         return
@@ -379,6 +386,10 @@ def process_event(event_name):
             lock.release()
         except LockNotOwnedError:
             pass
+    if event.status in ("Ready", "Delivered", "Denied", "Failed", "Uncertain"):
+        next_event = _earlier_pending(event)
+        if next_event:
+            enqueue_processing(next_event)
 
 
 def recover():

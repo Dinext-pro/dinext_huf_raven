@@ -1,0 +1,147 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-11-19 01:34:19.738964",
+ "description": "Private queue and delivery record for an authenticated Raven request.",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "source_message",
+  "requester_user",
+  "channel_id",
+  "root_channel",
+  "dialog_id",
+  "raven_bot",
+  "agent",
+  "status",
+  "source_parts",
+  "access_checks",
+  "response",
+  "huf_run",
+  "huf_conversation",
+  "reply_message",
+  "status_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "source_message",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Source Message",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "requester_user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Requester User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "channel_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Channel Id",
+   "reqd": 1
+  },
+  {
+   "fieldname": "root_channel",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Root Channel",
+   "reqd": 1
+  },
+  {
+   "fieldname": "dialog_id",
+   "fieldtype": "Data",
+   "label": "Dialog Id",
+   "reqd": 1
+  },
+  {
+   "fieldname": "raven_bot",
+   "fieldtype": "Data",
+   "label": "Raven Bot",
+   "reqd": 1
+  },
+  {
+   "fieldname": "agent",
+   "fieldtype": "Data",
+   "label": "Agent",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nRunning\nReady\nDelivered\nDenied\nFailed\nUncertain",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_parts",
+   "fieldtype": "Long Text",
+   "label": "Source Parts"
+  },
+  {
+   "fieldname": "access_checks",
+   "fieldtype": "Long Text",
+   "label": "Access Checks"
+  },
+  {
+   "fieldname": "response",
+   "fieldtype": "Long Text",
+   "label": "Response"
+  },
+  {
+   "fieldname": "huf_run",
+   "fieldtype": "Data",
+   "label": "Huf Run"
+  },
+  {
+   "fieldname": "huf_conversation",
+   "fieldtype": "Data",
+   "label": "Huf Conversation"
+  },
+  {
+   "fieldname": "reply_message",
+   "fieldtype": "Data",
+   "label": "Reply Message"
+  },
+  {
+   "fieldname": "status_message",
+   "fieldtype": "Data",
+   "label": "Status Message"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-19 01:34:19.738964",
+ "modified_by": "Administrator",
+ "module": "Dinext Huf Raven",
+ "name": "Dinext AI Event",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

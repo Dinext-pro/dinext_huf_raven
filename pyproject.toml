@@ -5,7 +5,7 @@ description = "Raven conversations and permission-aware Huf tools for Dinext"
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
-dependencies = []
+dependencies = ["pandas", "openpyxl", "Pillow", "PyMuPDF", "defusedxml", "Jinja2"]
 
 [build-system]
 requires = ["flit_core>=3.4,<4"]
