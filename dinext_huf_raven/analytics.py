@@ -172,7 +172,8 @@ def _parse_file(extension, content, operation):
         command = [sys.executable, "-I", str(Path(__file__).with_name("file_extractors.py")), extension, operation]
         output = subprocess.run(command, input=content, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                 timeout=22, check=True, cwd="/", env={
-                                    "PATH": "/usr/local/bin:/usr/bin:/bin", "LANG": "C.UTF-8",
+                                    "PATH": f"{Path(sys.executable).parent}:/usr/local/bin:/usr/bin:/bin",
+                                    "LANG": "C.UTF-8",
                                     "OPENBLAS_NUM_THREADS": "1", "OMP_THREAD_LIMIT": "1",
                                 }).stdout
         return json.loads(output)

@@ -55,7 +55,7 @@ bench --site localhost migrate
 bench --site localhost clear-cache
 ```
 
-Keep the long and default queues and the scheduler running. An administrator provisions a Raven bot and a dedicated Huf agent, selects an AI Model and enables routing in **Dinext AI Settings**. Grant Huf's `agent.use` capability to the employees who will use the bot. The `users` argument limits a new agent to the given accounts. When omitted, the agent uses the `Huf User` role. The app starts with routing disabled.
+Restart the bench web, queue and scheduler processes after adding the Python packages to an already running bench. Keep the long and default queues and the scheduler running. An administrator provisions a Raven bot and a dedicated Huf agent, selects an AI Model and enables routing in **Dinext AI Settings**. Grant Huf's `agent.use` capability to the employees who will use the bot. The `users` argument limits a new agent to the given accounts. When omitted, the agent uses the `Huf User` role. The app starts with routing disabled.
 
 ```sh
 bench --site localhost execute dinext_huf_raven.setup.provision \
@@ -85,4 +85,10 @@ The acceptance fixture uses two synthetic users and Huf's deterministic test pro
 ```sh
 bench --site localhost execute dinext_huf_raven.tests.acceptance.run
 bench --site localhost run-ui-tests dinext_huf_raven --headless --browser electron
+```
+
+After provisioning Yandex access, run the same private-chat check with the registered corporate model.
+
+```sh
+bench --site localhost execute dinext_huf_raven.tests.acceptance.run_corporate --kwargs '{"model":"MODEL_ID"}'
 ```

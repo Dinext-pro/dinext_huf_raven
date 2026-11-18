@@ -55,7 +55,7 @@ bench --site localhost migrate
 bench --site localhost clear-cache
 ```
 
-Оставьте запущенными очереди long и default и планировщик. Администратор создаёт бота Raven, назначает ему выделенного агента Huf, выбирает AI Model и включает обработку в **Dinext AI Settings**. Сотрудникам требуется разрешение Huf `agent.use`. Аргумент `users` ограничивает доступ к новому агенту указанными учётными записями. Если его опустить, агент будет доступен роли `Huf User`. После установки обработка сообщений выключена.
+После установки Python-пакетов в работающий bench перезапустите веб-процесс, воркеры и планировщик. Оставьте запущенными очереди long и default и планировщик. Администратор создаёт бота Raven, назначает ему выделенного агента Huf, выбирает AI Model и включает обработку в **Dinext AI Settings**. Сотрудникам требуется разрешение Huf `agent.use`. Аргумент `users` ограничивает доступ к новому агенту указанными учётными записями. Если его опустить, агент будет доступен роли `Huf User`. После установки обработка сообщений выключена.
 
 ```sh
 bench --site localhost execute dinext_huf_raven.setup.provision \
@@ -85,4 +85,10 @@ bench --site localhost execute dinext_huf_raven.setup.activate \
 ```sh
 bench --site localhost execute dinext_huf_raven.tests.acceptance.run
 bench --site localhost run-ui-tests dinext_huf_raven --headless --browser electron
+```
+
+После настройки Яндекс AI Studio проверьте личный чат с зарегистрированной корпоративной моделью.
+
+```sh
+bench --site localhost execute dinext_huf_raven.tests.acceptance.run_corporate --kwargs '{"model":"MODEL_ID"}'
 ```

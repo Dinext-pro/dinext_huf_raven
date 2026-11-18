@@ -9,7 +9,9 @@ describe("Dinext assistant in Raven", () => {
     const channel = () => "/raven/" + part(fixture.workspace) + "/" + part(fixture.channel);
     const showUser = (index, url) => {
         cy.login(index);
+        cy.task("assistantProgress", "Employee session verified", { log: false });
         cy.visit(url);
+        cy.task("assistantProgress", "Raven page loaded", { log: false });
     };
     const mention = (text) => {
         return cy.call("raven.api.raven_message.send_message", {
@@ -20,17 +22,29 @@ describe("Dinext assistant in Raven", () => {
     };
 
     before(() => cy.task("assistantFixture", null, { log: false }).then((value) => { fixture = value; }));
+    afterEach(function () {
+        const error = this.currentTest.err;
+        if (error) {
+            const summary = String(error.message).split("\n").filter(Boolean).slice(0, 3).join(" ");
+            cy.task("assistantProgress", summary, { log: false });
+        }
+    });
 
     it("receives a Huf response after an employee sends a DM from the Raven composer", () => {
         showUser(0, dm(fixture.dms[0]));
         const text = scenario + " personal " + fixture.tag;
+        cy.intercept("POST", "**/api/method/raven.api.raven_message.send_message_with_attachments").as("composerSend");
         // Insert the literal test marker as one input, so Tiptap's keystroke-level
         // Markdown shortcuts do not treat its double underscores as bold formatting.
         cy.get('.ProseMirror[contenteditable="true"]').filter(":visible").last().click().then(($editor) => {
             $editor[0].ownerDocument.execCommand("insertText", false, text);
-        }).type("{enter}");
-        cy.contains(text).should("be.visible");
-        cy.task("assistantReceipt", { text }).then((event) => {
+        });
+        cy.get('button[aria-label="Send message"], button[aria-label="Send message silently"]').filter(":visible")
+            .last().should("be.enabled").click();
+        cy.wait("@composerSend").then(({ response }) => {
+            expect(response.statusCode).to.equal(200);
+            return cy.task("assistantReceipt", { source: response.body.message.at(-1).name });
+        }).then((event) => {
             cy.reload();
             cy.get('[data-message-id="' + event.reply + '"]').contains(modelReply).should("be.visible");
         });

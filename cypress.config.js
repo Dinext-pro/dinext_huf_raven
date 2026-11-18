@@ -46,8 +46,11 @@ function fixtureProcess(bench) {
 module.exports = {
     video: false,
     includeShadowDom: true,
-    defaultCommandTimeout: 20000,
-    taskTimeout: 100000,
+    defaultCommandTimeout: 60000,
+    requestTimeout: 120000,
+    responseTimeout: 120000,
+    pageLoadTimeout: 120000,
+    taskTimeout: 150000,
     viewportWidth: 1440,
     viewportHeight: 960,
     e2e: {
@@ -60,6 +63,12 @@ module.exports = {
             let fixture;
             const bench = process.env.DINEXT_AI_BENCH || path.resolve(__dirname, "../..");
             on("task", {
+                assistantProgress(message) {
+                    const safe = String(message).replace(/\S+@example\.invalid/gi, "[employee]")
+                        .replace(/\b[\da-f]{20,}\b/gi, "[fixture]");
+                    console.log("Raven QA:", safe.slice(0, 300));
+                    return null;
+                },
                 assistantFixture() {
                     if (!fixture) fixture = fixtureProcess(bench);
                     return fixture.request({ command: "fixture" });

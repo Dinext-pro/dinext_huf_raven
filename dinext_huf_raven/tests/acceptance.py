@@ -1,11 +1,17 @@
 """Local Raven/Huf acceptance with disposable employees, channels and configuration."""
 
+import fcntl
 import json
+import os
+import re
 import secrets
+import signal
 import sys
 import time
 from contextlib import contextmanager
 from html import escape
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 from unittest.mock import patch
 
 import frappe
@@ -113,35 +119,84 @@ def _cleanup(state):
 
 
 @contextmanager
-def fixture(model=None):
+def _fixture_lock():
     from raven.notification import push_disabled
 
     if frappe.local.site != "localhost" or frappe.session.user != "Administrator" or not push_disabled():
         raise RuntimeError("This fixture requires the localhost bench console and disabled Raven push notifications.")
-    tag = secrets.token_hex(10)
-    original = frappe.get_single(SETTINGS)
-    state = frappe._dict(
-        users=[f"ai-qa-{tag}-{i}@example.invalid" for i in (1, 2)], password=secrets.token_urlsafe(30),
+    folder = Path(frappe.get_site_path("private"))
+    with (folder / "dinext-raven-acceptance.lock").open("a") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise RuntimeError("Another localhost assistant fixture is active.") from error
+        old_flags = frappe.flags.in_test, frappe.flags.mute_emails
+        frappe.flags.in_test = frappe.flags.mute_emails = True
+        try:
+            yield folder / "dinext-raven-acceptance.json"
+        finally:
+            frappe.flags.in_test, frappe.flags.mute_emails = old_flags
+
+
+def _state(tag, settings, owns_provider):
+    if not re.fullmatch(r"[0-9a-f]{20}", tag) or set(settings) != {"enabled", "raven_bot", "agent"}:
+        raise RuntimeError("Invalid local assistant fixture snapshot.")
+    return frappe._dict(
+        users=[f"ai-qa-{tag}-{i}@example.invalid" for i in (1, 2)],
         tag=tag, workspace=f"AI QA {tag}", bot=f"AI QA Bot {tag}", agent=f"AI QA Agent {tag}",
-        test_model=f"dinext-qa-{tag}", owns_provider=not model and not frappe.db.exists("AI Provider", PROVIDER),
-        settings={field: original.get(field) for field in ("enabled", "raven_bot", "agent")},
+        test_model=f"dinext-qa-{tag}", owns_provider=owns_provider, settings=settings,
     )
+
+
+def _restore_snapshot(path):
+    if not path.exists():
+        return False
+    state = _state(**json.loads(path.read_text()))
+    frappe.db.rollback()
+    _cleanup(state)
+    path.unlink()
+    return True
+
+
+def cleanup_interrupted():
+    """Restore a killed fixture's recorded settings and exact synthetic identities."""
+    with _fixture_lock() as path:
+        return _restore_snapshot(path)
+
+
+@contextmanager
+def fixture(model=None):
+    with _fixture_lock() as path:
+        _restore_snapshot(path)
+        original = frappe.get_single(SETTINGS)
+        settings = {field: original.get(field) for field in ("enabled", "raven_bot", "agent")}
+        state = _state(secrets.token_hex(10), settings, not model and not frappe.db.exists("AI Provider", PROVIDER))
+        state.password = secrets.token_urlsafe(30)
+        with _active_fixture(state, model, path):
+            yield state
+
+
+@contextmanager
+def _active_fixture(state, model, path):
     for doctype, name in [("User", user) for user in state.users] + [
         ("Agent", state.agent), ("Raven Bot", state.bot), ("Raven Workspace", state.workspace), ("AI Model", state.test_model),
     ]:
         if frappe.db.exists(doctype, name):
             raise RuntimeError("A generated fixture identity already exists.")
-    old_flags = frappe.flags.in_test, frappe.flags.mute_emails
-    frappe.flags.in_test = frappe.flags.mute_emails = True
+    # This contains only the previous three settings and the unique QA tag. It
+    # survives an abrupt browser/worker kill without retaining any credentials.
+    with NamedTemporaryFile(mode="w", dir=path.parent, delete=False) as scratch:
+        json.dump({key: state[key] for key in ("tag", "settings", "owns_provider")}, scratch)
+        scratch.flush()
+        os.fsync(scratch.fileno())
+    os.replace(scratch.name, path)
     try:
         _create(state, model)
-        yield state
+        yield
     finally:
-        try:
-            frappe.db.rollback()
-            _cleanup(state)
-        finally:
-            frappe.flags.in_test, frappe.flags.mute_emails = old_flags
+        frappe.db.rollback()
+        _cleanup(state)
+        path.unlink()
 
 
 def _send(state, user, channel, text, mention=False, files=None):
@@ -238,6 +293,21 @@ def run():
         return {"raven": exercise(state), "business": exercise_business(state)}
 
 
+def run_corporate(model):
+    """Exercise an installed corporate Huf model using a synthetic requester."""
+    record = frappe.get_doc("AI Model", model)
+    if record.provider.lower() == PROVIDER:
+        raise ValueError("Select a corporate Huf model")
+    with fixture(model) as state, patch.object(bridge, "_queue"):
+        source = _send(state, state.users[0], state.dms[0], "Reply with DINEXT_OK.")
+        event = _complete(source)
+        assert event.status == "Delivered" and "DINEXT_OK" in (event.response or "")
+        reply = frappe.get_doc("Raven Message", event.reply_message)
+        assert reply.channel_id == state.dms[0]
+        assert frappe.db.get_value("Agent Run", event.huf_run, "status") == "Success"
+        return {"provider": record.provider, "delivered_private_reply": True}
+
+
 def _browser_request(state, request):
     """Cypress talks over local stdin. No fixture management endpoint is exposed on the site."""
     if request["command"] == "fixture":
@@ -254,14 +324,14 @@ def _browser_request(state, request):
         with requests.Session() as client:
             client.trust_env = False
             response = client.post(root.rstrip("/") + "/api/method/login", data={"usr": user, "pwd": state.password},
-                                   timeout=(10, 80), allow_redirects=False)
+                                   timeout=(10, 120), allow_redirects=False)
             if response.status_code != 200 or not client.cookies.get("sid"):
                 raise RuntimeError("Synthetic employee login failed with HTTP " + str(response.status_code))
             cookies = {key: value for key, value in client.cookies.items()
                        if key in {"sid", "user_id", "full_name", "system_user", "user_image"}}
         return {"user": user, "cookies": cookies}
     source, text = request.get("source"), request.get("text")
-    deadline = time.monotonic() + 75
+    deadline = time.monotonic() + 120
     while time.monotonic() < deadline:
         frappe.db.rollback()
         if not source and text:
@@ -281,6 +351,11 @@ def _browser_request(state, request):
 
 
 def _serve_browser():
+    def stop(signum, frame):
+        raise SystemExit(128 + signum)
+
+    signal.signal(signal.SIGTERM, stop)
+    signal.signal(signal.SIGHUP, stop)
     frappe.init(site="localhost")
     frappe.connect()
     try:
