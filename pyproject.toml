@@ -1,0 +1,17 @@
+[project]
+name = "dinext_huf_raven"
+authors = [{name = "Dinext", email = "info@dinext.ru"}]
+description = "Raven conversations and permission-aware Huf tools for Dinext"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = []
+
+[build-system]
+requires = ["flit_core>=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=15.0.0"
+raven = ">=3.2.0"
+huf = ">=1.0.0-beta.3"
